@@ -12,6 +12,7 @@ class LogoApp extends StatefulWidget {
 class _LogoAppState extends State<LogoApp> with SingleTickerProviderStateMixin {
   late Animation<double> animation;
   late AnimationController controller;
+  
 
   @override
   void initState() {
@@ -27,8 +28,7 @@ class _LogoAppState extends State<LogoApp> with SingleTickerProviderStateMixin {
     controller.forward();
   }
 
-  void _restartAnimation() {
-    controller.reset();
+  void _startAnimation() {
     controller.forward();
   }
 
@@ -36,14 +36,22 @@ class _LogoAppState extends State<LogoApp> with SingleTickerProviderStateMixin {
     controller.stop();
   }
 
-  void _startAnimation() {
-    controller.forward();
+  void _restartAnimation() {
+    controller.reset();
+    //controller.forward();
   }
 
   void _reverseAnimation() {
-    controller.reverse();
+    if (controller.status == AnimationStatus.forward ||
+        controller.status == AnimationStatus.completed) {
+      controller.reverse();
+    } else {
+      controller.forward();
+    }
+    //controller.reverse();
   }
 
+  @override
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Scaffold(
@@ -55,35 +63,36 @@ class _LogoAppState extends State<LogoApp> with SingleTickerProviderStateMixin {
             child: Image.asset('assets/images/capybara.jpg', fit: BoxFit.contain),
           ),
         ),
-        floatingActionButton: Row(
-          children: [
-            FloatingActionButton(
-              onPressed: _restartAnimation,
-              child: const Icon(Icons.replay),
-            ),
-            FloatingActionButton(
-              onPressed: _startAnimation,
-              child: const Icon(Icons.start),
-            ),
-
-            FloatingActionButton(
-              onPressed: _pauseAnimation,
-              child: const Icon(Icons.pause),
-            ),
-
-            FloatingActionButton(
-              onPressed: _reverseAnimation,
-              child: const Icon(Icons.replay),
-            ),
-          ],
+        floatingActionButton: Padding(
+          padding: const EdgeInsets.only(bottom: 16), 
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              FloatingActionButton(
+                onPressed: _startAnimation,
+                child: const Icon(Icons.play_arrow),
+              ),
+              const SizedBox(width: 16),
+              FloatingActionButton(
+                onPressed: _pauseAnimation,
+                child: const Icon(Icons.pause),
+              ),
+              const SizedBox(width: 16),
+              FloatingActionButton(
+                onPressed: _reverseAnimation,
+                child: const Icon(Icons.sync),
+              ),
+              const SizedBox(width: 16),
+              FloatingActionButton(
+                onPressed: _restartAnimation,
+                child: const Icon(Icons.replay),
+              ),
+            ],
+          ),
         ),
+        floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       ),
     );
   }
 
-  @override
-  void dispose() {
-    controller.dispose();
-    super.dispose();
-  }
 }
