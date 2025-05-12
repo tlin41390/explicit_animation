@@ -95,3 +95,13 @@ void  _reverseAnimation() {
 -   `stop()`: Pauses the animation at its current position.
 -   `reset()`: Resets the controller value to 0.0.
 -   `reverse()`: Reverses the animation if currently running or completed; otherwise, it plays forward.
+
+## Dispose
+Dispose your AnimationController using the dispose() method to prevent memory leaks:
+'''
+@override
+ void dispose() {
+   controller.dispose();
+   super.dispose();
+ }
+'''
