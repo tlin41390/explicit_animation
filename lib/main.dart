@@ -25,11 +25,14 @@ class _LogoAppState extends State<LogoApp> with SingleTickerProviderStateMixin {
       ..addListener(() {
         setState(() {});
       });
-    controller.forward();
   }
 
   void _startAnimation() {
-    controller.forward();
+     if (controller.status == AnimationStatus.reverse ) {
+      controller.reverse();
+    } else { 
+      controller.forward();
+    }
   }
 
   void _pauseAnimation() {
@@ -54,6 +57,7 @@ class _LogoAppState extends State<LogoApp> with SingleTickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       home: Scaffold(
         body: Center(
           child: Container(
