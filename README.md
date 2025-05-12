@@ -98,10 +98,10 @@ void  _reverseAnimation() {
 
 ## Dispose
 Dispose your AnimationController using the dispose() method to prevent memory leaks:
-'''
+```
 @override
  void dispose() {
    controller.dispose();
    super.dispose();
  }
-'''
+```
