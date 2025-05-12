@@ -33,13 +33,9 @@ animation = Tween<double>(begin: 0, end: 300).animate(controller)
 ```
 
 You can use `Tween<T>` for:
-
 -   `double` values (e.g., size, offset)
-    
 -   `ColorTween`
-    
 -   `AlignmentTween`
-    
 -   and more
 
 ## SingleTickerProviderMixIn
