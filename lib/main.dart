@@ -24,7 +24,18 @@ class _LogoAppState extends State<LogoApp> with SingleTickerProviderStateMixin {
     animation = Tween<double>(begin: 0, end: 300).animate(controller)
       ..addListener(() {
         setState(() {});
+      })
+      ..addStatusListener((status){
+        if(status == AnimationStatus.completed){
+          controller.reset();
+          controller.forward();
+        } else if(status == AnimationStatus.dismissed){
+          controller.forward();
+        }
       });
+
+      //loop continuously
+      controller.forward();
   }
 
   void _startAnimation() {
@@ -51,7 +62,6 @@ class _LogoAppState extends State<LogoApp> with SingleTickerProviderStateMixin {
     } else {
       controller.forward();
     }
-    //controller.reverse();
   }
 
   @override
