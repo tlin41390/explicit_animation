@@ -26,10 +26,30 @@ Common fields and methods from the AnimationController are:
 
 By default, an `AnimationController` goes from 0.0 to 1.0. A `Tween` maps that range to custom values—for example, pixel positions, opacity, or color.
 ```
-animation = Tween<double>(begin: 0, end: 300).animate(controller)
-	..addListener(() {
-	setState(() {});
-});
+Tween<double>(begin: minSize, end: maxSize).animate(controller)
+          ..addListener(() {
+            setState(() {});
+          })
+          ..addStatusListener((status) {
+            if (status == AnimationStatus.completed) {
+              if (animationPlayState == AnimationPlayState.playing &&
+                  animationDirection == AnimationDirection.forward) {
+                controller.reset();
+                controller.forward();
+              }
+            } else if (status == AnimationStatus.dismissed) {
+              if (animationPlayState == AnimationPlayState.playing &&
+                  animationDirection == AnimationDirection.reverse) {
+                controller.value = 1.0;
+                controller.reverse();
+              }
+            }
+          })
+          ..addStatusListener(
+            (status) => print(
+              'status: $status, animationPlayState: $animationPlayState, animationDirection: $animationDirection',
+            ),
+          );
 ```
 
 You can use `Tween<T>` for:
