@@ -17,7 +17,7 @@ controller = AnimationController(
 Common fields and methods from the AnimationController are:
 
 -   `value`: Internal value of the animation.
--   `forward()`: Start the animation and progresses the invernal value from 0.0 to 1.0.
+-   `forward()`: Start the animation and progresses the internal value from 0.0 to 1.0.
 -   `reverse()`: Reverses the animation and moves the internal value from 1.0 to 0.0.
 -   `stop()`: Stops the animations at the current internal value.
 -   `addListener()`: Registers a function that will be invoked when the controller value changes.
