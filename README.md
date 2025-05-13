@@ -7,7 +7,7 @@ In Flutter, **explicit animations** give you full control over the animation pro
 
 An object that **controls the animation**—you can start, stop, reverse, or repeat the animation. It requires a `vsync` (usually provided by `SingleTickerProviderStateMixin`).
 
-```
+```dart
 controller = AnimationController(
 	duration: const  Duration(seconds: 2),
 	vsync: this,
@@ -25,7 +25,7 @@ Common fields and methods from the AnimationController are:
 ## Tween 
 
 By default, an `AnimationController` goes from 0.0 to 1.0. A `Tween` maps that range to custom values—for example, pixel positions, opacity, or color.
-```
+```dart
 Tween<double>(begin: minSize, end: maxSize).animate(controller)
           ..addListener(() {
             setState(() {});
@@ -62,7 +62,7 @@ You can use `Tween<T>` for:
 
 The `AnimationController` requires a `TickerProvider` to produce animation "ticks" (frames). This is commonly provided by the widget’s state class using `SingleTickerProviderStateMixin`.
 
-```
+```dart
 class _ExplicitAnimationDemoAppState extends State<ExplicitAnimationDemoApp>
     with SingleTickerProviderStateMixin {
   late AnimationController controller;
@@ -123,7 +123,7 @@ Use `TickerProviderStateMixin` if you need multiple animations (more than one `A
 ## Animation Controls 
 These functions control the animation at runtime, such as starting, pausing, restarting, or reversing the direction. You can wire them to buttons or other user interactions.
 
-```
+```dart
 void _startAnimation() {
     if (animationDirection == AnimationDirection.forward) {
       controller.forward();
@@ -171,7 +171,7 @@ void _startAnimation() {
 
 ## Dispose
 Dispose your AnimationController using the dispose() method to prevent memory leaks:
-```
+```dart
 @override
  void dispose() {
    controller.dispose();
