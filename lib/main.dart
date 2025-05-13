@@ -1,105 +1,186 @@
 import 'package:flutter/material.dart';
 
-void main() => runApp(const LogoApp());
+void main() => runApp(const ExplicitAnimationDemoApp());
 
-class LogoApp extends StatefulWidget {
-  const LogoApp({super.key});
+enum AnimationDirection { forward, reverse }
+
+enum AnimationPlayState { playing, paused }
+
+class ExplicitAnimationDemoApp extends StatefulWidget {
+  const ExplicitAnimationDemoApp({super.key});
 
   @override
-  State<LogoApp> createState() => _LogoAppState();
+  State<ExplicitAnimationDemoApp> createState() =>
+      _ExplicitAnimationDemoAppState();
 }
 
-class _LogoAppState extends State<LogoApp> with SingleTickerProviderStateMixin {
-  late Animation<double> animation;
+class _ExplicitAnimationDemoAppState extends State<ExplicitAnimationDemoApp>
+    with SingleTickerProviderStateMixin {
   late AnimationController controller;
-  
+  late Animation<double> animation;
+
+  late AnimationDirection animationDirection;
+  late AnimationPlayState animationPlayState;
+
+  double minSize = 0;
+  double maxSize = 300;
 
   @override
   void initState() {
     super.initState();
     controller = AnimationController(
-      duration: const Duration(seconds: 2),
+      duration: const Duration(seconds: 4),
       vsync: this,
     );
-    animation = Tween<double>(begin: 0, end: 300).animate(controller)
-      ..addListener(() {
-        setState(() {});
-      })
-      ..addStatusListener((status){
-        if(status == AnimationStatus.completed){
-          controller.reset();
-          controller.forward();
-        } else if(status == AnimationStatus.dismissed){
-          controller.forward();
-        }
-      });
-
-      //loop continuously
-      controller.forward();
+    animationDirection = AnimationDirection.forward;
+    animationPlayState = AnimationPlayState.paused;
+    animation =
+        Tween<double>(begin: minSize, end: maxSize).animate(controller)
+          ..addListener(() {
+            setState(() {});
+          })
+          ..addStatusListener((status) {
+            if (status == AnimationStatus.completed) {
+              if (animationPlayState == AnimationPlayState.playing &&
+                  animationDirection == AnimationDirection.forward) {
+                controller.reset();
+                controller.forward();
+              }
+            } else if (status == AnimationStatus.dismissed) {
+              if (animationPlayState == AnimationPlayState.playing &&
+                  animationDirection == AnimationDirection.reverse) {
+                controller.value = 1.0;
+                controller.reverse();
+              }
+            }
+          })
+          ..addStatusListener(
+            (status) => print(
+              'status: $status, animationPlayState: $animationPlayState, animationDirection: $animationDirection',
+            ),
+          );
   }
 
   void _startAnimation() {
-     if (controller.status == AnimationStatus.reverse ) {
-      controller.reverse();
-    } else { 
+    if (animationDirection == AnimationDirection.forward) {
       controller.forward();
+    } else {
+      // animationDirection == AnimationDirection.reverse
+      if (controller.status == AnimationStatus.dismissed) {
+        controller.value = 1.0;
+      }
+      controller.reverse();
     }
+    animationPlayState = AnimationPlayState.playing;
   }
 
   void _pauseAnimation() {
     controller.stop();
-  }
-
-  void _restartAnimation() {
-    controller.reset();
-    //controller.forward();
+    animationPlayState = AnimationPlayState.paused;
   }
 
   void _reverseAnimation() {
-    if (controller.status == AnimationStatus.forward ||
-        controller.status == AnimationStatus.completed) {
-      controller.reverse();
+    if (animationDirection == AnimationDirection.forward) {
+      animationDirection = AnimationDirection.reverse;
+      if (animationPlayState == AnimationPlayState.playing) {
+        controller.reverse();
+      }
     } else {
-      controller.forward();
+      // animationDirection == AnimationDirection.reverse
+      animationDirection = AnimationDirection.forward;
+      if (animationPlayState == AnimationPlayState.playing) {
+        controller.forward();
+      }
     }
+  }
+
+  void _resetAnimation() {
+    animationDirection = AnimationDirection.forward;
+    animationPlayState = AnimationPlayState.paused;
+    controller.reset();
+  }
+
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
+      theme: ThemeData(colorSchemeSeed: Colors.blue),
+      title: 'Explicit Animation Demo',
       home: Scaffold(
+        appBar: AppBar(
+          title: const Text('Explicit Animation Demo'),
+          centerTitle: true,
+        ),
         body: Center(
           child: Container(
             margin: const EdgeInsets.symmetric(vertical: 10),
             height: animation.value,
             width: animation.value,
-            child: Image.asset('assets/images/capybara.jpg', fit: BoxFit.contain),
+            // child: const FlutterLogo(),
+            child: Image.asset(
+              'assets/images/capybara.jpg',
+              fit: BoxFit.contain,
+            ),
           ),
         ),
         floatingActionButton: Padding(
-          padding: const EdgeInsets.only(bottom: 16), 
+          padding: const EdgeInsets.only(bottom: 16),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              FloatingActionButton(
-                onPressed: _startAnimation,
-                child: const Icon(Icons.play_arrow),
+              Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  FloatingActionButton(
+                    onPressed: _startAnimation,
+                    child: const Icon(Icons.play_arrow),
+                  ),
+                  const SizedBox(height: 8),
+                  Text("Play", textAlign: TextAlign.center),
+                ],
               ),
               const SizedBox(width: 16),
-              FloatingActionButton(
-                onPressed: _pauseAnimation,
-                child: const Icon(Icons.pause),
+              Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  FloatingActionButton(
+                    onPressed: _pauseAnimation,
+                    child: const Icon(Icons.pause),
+                  ),
+                  const SizedBox(height: 8),
+                  Text("Pause", textAlign: TextAlign.center),
+                ],
               ),
               const SizedBox(width: 16),
-              FloatingActionButton(
-                onPressed: _reverseAnimation,
-                child: const Icon(Icons.sync),
+              Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  FloatingActionButton(
+                    onPressed: _reverseAnimation,
+                    child: const Icon(Icons.sync),
+                  ),
+                  const SizedBox(height: 8),
+                  Text("Reverse\nDirection", textAlign: TextAlign.center),
+                ],
               ),
               const SizedBox(width: 16),
-              FloatingActionButton(
-                onPressed: _restartAnimation,
-                child: const Icon(Icons.replay),
+              Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  FloatingActionButton(
+                    onPressed: _resetAnimation,
+                    child: const Icon(Icons.replay),
+                  ),
+                  const SizedBox(height: 8),
+                  Text("Reset\nAll", textAlign: TextAlign.center),
+                ],
               ),
             ],
           ),
@@ -108,5 +189,4 @@ class _LogoAppState extends State<LogoApp> with SingleTickerProviderStateMixin {
       ),
     );
   }
-
 }
