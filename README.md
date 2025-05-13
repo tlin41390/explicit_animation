@@ -43,16 +43,51 @@ You can use `Tween<T>` for:
 The `AnimationController` requires a `TickerProvider` to produce animation "ticks" (frames). This is commonly provided by the widget’s state class using `SingleTickerProviderStateMixin`.
 
 ```
-class  _LogoAppState  extends  State<LogoApp> with  SingleTickerProviderStateMixin {
-	late AnimationController controller;
+class _ExplicitAnimationDemoAppState extends State<ExplicitAnimationDemoApp>
+    with SingleTickerProviderStateMixin {
+  late AnimationController controller;
+  late Animation<double> animation;
+
+  late AnimationDirection animationDirection;
+  late AnimationPlayState animationPlayState;
+
+  double minSize = 0;
+  double maxSize = 300;
 
   @override
-  void initState() {
+void initState() {
     super.initState();
     controller = AnimationController(
-      duration: Duration(seconds: 2),
+      duration: const Duration(seconds: 4),
       vsync: this,
     );
+    animationDirection = AnimationDirection.forward;
+    animationPlayState = AnimationPlayState.paused;
+    animation =
+        Tween<double>(begin: minSize, end: maxSize).animate(controller)
+          ..addListener(() {
+            setState(() {});
+          })
+          ..addStatusListener((status) {
+            if (status == AnimationStatus.completed) {
+              if (animationPlayState == AnimationPlayState.playing &&
+                  animationDirection == AnimationDirection.forward) {
+                controller.reset();
+                controller.forward();
+              }
+            } else if (status == AnimationStatus.dismissed) {
+              if (animationPlayState == AnimationPlayState.playing &&
+                  animationDirection == AnimationDirection.reverse) {
+                controller.value = 1.0;
+                controller.reverse();
+              }
+            }
+          })
+          ..addStatusListener(
+            (status) => print(
+              'status: $status, animationPlayState: $animationPlayState, animationDirection: $animationDirection',
+            ),
+          );
   }
 
   @override
@@ -69,26 +104,44 @@ Use `TickerProviderStateMixin` if you need multiple animations (more than one `A
 These functions control the animation at runtime, such as starting, pausing, restarting, or reversing the direction. You can wire them to buttons or other user interactions.
 
 ```
-void  _startAnimation() {
-	controller.forward();
-}
+void _startAnimation() {
+    if (animationDirection == AnimationDirection.forward) {
+      controller.forward();
+    } else {
+      // animationDirection == AnimationDirection.reverse
+      if (controller.status == AnimationStatus.dismissed) {
+        controller.value = 1.0;
+      }
+      controller.reverse();
+    }
+    animationPlayState = AnimationPlayState.playing;
+  }
 
-void  _pauseAnimation() {
-	controller.stop();
-}
+  void _pauseAnimation() {
+    controller.stop();
+    animationPlayState = AnimationPlayState.paused;
+  }
 
-void  _restartAnimation() {
-	controller.reset();
-}
+  void _reverseAnimation() {
+    if (animationDirection == AnimationDirection.forward) {
+      animationDirection = AnimationDirection.reverse;
+      if (animationPlayState == AnimationPlayState.playing) {
+        controller.reverse();
+      }
+    } else {
+      // animationDirection == AnimationDirection.reverse
+      animationDirection = AnimationDirection.forward;
+      if (animationPlayState == AnimationPlayState.playing) {
+        controller.forward();
+      }
+    }
+  }
 
-void  _reverseAnimation() {
-	if (controller.status == AnimationStatus.forward ||
-	controller.status == AnimationStatus.completed) {
-		controller.reverse();
-	} else {
-		controller.forward();
-	}
-}
+  void _resetAnimation() {
+    animationDirection = AnimationDirection.forward;
+    animationPlayState = AnimationPlayState.paused;
+    controller.reset();
+  }
 ```
 
 -   `forward()`: Starts or resumes the animation forward.
